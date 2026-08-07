@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: #0f172a;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .dark body,
+  body.dark {
+    background-color: #09090b;
+    color: #f8fafc;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  .bento-card {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .dark .bento-card {
+    background-color: #161618;
+    border: 1px solid #2D2D30;
+  }
+  .bento-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+  }
+  .dark .bento-card:hover {
+    border-color: #3F3F46;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+  .bento-card-light {
+    background-color: #ffffff;
+    border: 1px solid #e4e4e7;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .dark .bento-card-light {
+    background-color: #18181b;
+    border-color: #27272a;
+  }
+  .bento-card-light:hover {
+    border-color: #f59e0b;
+    box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.1);
+  }
+}
+
+.heart-active {
+  fill: #e11d48;
+  stroke: #e11d48;
+  stroke-width: 0.8;
+}
+
+.heart-inactive {
+  fill: none;
+  stroke: #9ca3af;
+  stroke-width: 1.5;
+}
+
+.heart-btn:hover .heart-inactive {
+  stroke: #e11d48;
+}
+
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+}
+
+.img-hover-zoom {
+  transition: transform 0.5s ease;
+}
+
+.group:hover .img-hover-zoom {
+  transform: scale(1.05);
+}
+
+.profile-avatar {
+  position: absolute;
+  bottom: -3rem;
+  left: 2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 9999px;
+  border: 4px solid white;
+  object-fit: cover;
+}
+
+.dark .profile-avatar {
+  border-color: #161618;
+}
+
+/* 3D Flip Card Styles */
+.card, .flip-card {
+  perspective: 1000px;
+}
+.inner, .flip-card-inner {
+  position: relative;
+  width: 100%;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.card.flipped .inner, .flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+.face, .flip-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  width: 100%;
+}
+.back, .flip-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transform: rotateY(180deg);
+}
+
+.back-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.back-content::-webkit-scrollbar {
+  width: 5px;
+}
+.back-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+
+

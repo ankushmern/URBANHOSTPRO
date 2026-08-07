@@ -1,0 +1,43 @@
+# =========================================================
+# Multi-stage Dockerfile for CookMantra Frontend SPA
+# =========================================================
+
+# Stage 1: Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy dependency manifests
+COPY package.json package-lock.json* bun.lock* ./
+
+# Install dependencies
+RUN npm ci || npm install
+
+# Copy source files
+COPY . .
+
+# Set environment variables for production build
+ENV NODE_ENV=production
+
+# Build static assets
+RUN npm run build
+
+# Stage 2: Serve static files with Nginx
+FROM nginx:1.27-alpine AS runner
+
+# Copy custom Nginx configuration files
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Clean default web root & copy built static assets
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Expose HTTP port
+EXPOSE 80
+
+# Health check for frontend container
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost/ || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

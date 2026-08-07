@@ -1,0 +1,6 @@
+{
+  "name": "CookMantra",
+  "description": "A comprehensive culinary experience platform featuring top chefs, masterclasses, weekly meal preps, party services, and recipe wishlist.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

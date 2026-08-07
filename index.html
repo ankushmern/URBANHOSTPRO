@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta name="theme-color" content="#f59e0b" />
+    <meta name="description" content="CookMantra - On-demand private home chefs, artisanal meal plans, weekly meal preps, and gourmet catering experiences in your kitchen." />
+    <meta name="keywords" content="home chef service, private chef booking, cookmantra, gourmet food delivery, weekly meal prep, catering" />
+    <meta name="author" content="CookMantra Culinary Innovations" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CookMantra – On-Demand Home Chefs & Gourmet Meal Prep" />
+    <meta property="og:description" content="Book 5-star home chefs for daily meals, weekly prep, and luxury private dining." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=1200&auto=format&fit=crop" />
+
+    <title>CookMantra – On-Demand Home Chefs & Artisanal Meal Prep</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Dark Mode Initializer -->
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('cookmantra_dark_mode');
+          if (stored === 'true' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-gray-50 text-gray-900 dark:bg-[#09090b] dark:text-gray-100 transition-colors duration-300 font-sans antialiased min-h-screen flex flex-col">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

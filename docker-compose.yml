@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------
+  # CookMantra Backend Express API
+  # ---------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: cookmantra-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI=mongodb://mongodb:27017/cookmantra
+      - REDIS_URI=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:-cookmantra_jwt_secret_key_2026_super_secure_prod}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID:-rzp_test_cookmantra2026}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET:-secret_cookmantra_test_key_9988}
+      - RAZORPAY_WEBHOOK_SECRET=${RAZORPAY_WEBHOOK_SECRET:-whsec_cookmantra_webhook_secret}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-MY_GEMINI_API_KEY}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - cookmantra-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ---------------------------------------------------------
+  # CookMantra Frontend Nginx SPA
+  # ---------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: cookmantra-frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - cookmantra-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ---------------------------------------------------------
+  # MongoDB Database
+  # ---------------------------------------------------------
+  mongodb:
+    image: mongo:7.0-noble
+    container_name: cookmantra-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - cookmantra-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ---------------------------------------------------------
+  # Redis Cache & Session Store
+  # ---------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: cookmantra-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cookmantra-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  cookmantra-net:
+    driver: bridge
