@@ -1,8 +1,8 @@
 # =========================================================
-# Multi-stage Dockerfile for CookMantra Backend API
+# Multi-stage Fullstack Dockerfile for CookMantra Application
 # =========================================================
 
-# Stage 1: Build stage
+# Stage 1: Builder stage
 FROM node:22-alpine AS builder
 
 WORKDIR /app
@@ -10,16 +10,16 @@ WORKDIR /app
 # Copy dependency manifests
 COPY package.json package-lock.json* bun.lock* ./
 
-# Install all dependencies including devDependencies
+# Install dependencies including devDependencies for build
 RUN npm ci || npm install
 
-# Copy source code
+# Copy application source code
 COPY . .
 
-# Set environment
+# Set production environment for building static assets & backend
 ENV NODE_ENV=production
 
-# Compile TypeScript server bundle and Vite static assets
+# Build Vite frontend static assets and ESBuild backend server bundle
 RUN npm run build
 
 # Stage 2: Production runner stage
@@ -27,11 +27,11 @@ FROM node:22-alpine AS runner
 
 WORKDIR /app
 
-# Set production environment
+# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Copy package manifests & install production dependencies only
+# Copy package manifests and install production dependencies only
 COPY package.json package-lock.json* ./
 RUN npm ci --only=production || npm install --omit=dev
 
@@ -46,7 +46,7 @@ USER cookmantra
 
 EXPOSE 3000
 
-# Health check endpoint
+# Container healthcheck endpoint
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1
 
