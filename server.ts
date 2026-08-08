@@ -74,24 +74,65 @@ const defaultDevOrigins = [
   'http://127.0.0.1:3000',
 ];
 
+const productionOrigins = [
+  'https://urbanhostpro.onrender.com',
+];
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (envAllowedOrigins.length > 0 && envAllowedOrigins.includes(origin)) {
+      if (!origin) {
         return callback(null, true);
       }
+
+      if (productionOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      if (
+        envAllowedOrigins.length > 0 &&
+        envAllowedOrigins.includes(origin)
+      ) {
+        return callback(null, true);
+      }
+
       if (!isProd && defaultDevOrigins.includes(origin)) {
         return callback(null, true);
       }
-      if (origin.includes('.run.app') || origin.includes('localhost')) {
+
+      if (
+        origin.includes('.run.app') ||
+        origin.includes('localhost')
+      ) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS error: Origin '${origin}' is not allowed by security policy.`));
+
+      return callback(
+        new Error(
+          `CORS error: Origin '${origin}' is not allowed by security policy.`
+        )
+      );
     },
+
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-CSRF-Token', 'x-csrf-token'],
+
+    methods: [
+      'GET',
+      'POST',
+      'PUT',
+      'DELETE',
+      'PATCH',
+      'OPTIONS',
+    ],
+
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'X-CSRF-Token',
+      'x-csrf-token',
+    ],
+
     exposedHeaders: ['X-CSRF-Token'],
   })
 );
@@ -101,8 +142,12 @@ const apiLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { status: 429, message: 'Too many requests from this IP, please try again later.' },
+  message: {
+    status: 429,
+    message: 'Too many requests from this IP, please try again later.',
+  },
 });
+
 app.use('/api/', apiLimiter);
 
 app.use(express.json({ limit: '5mb' }));
@@ -121,7 +166,7 @@ connectDatabase().then(async (connected) => {
     try {
       await runAllMigrations();
       await seedDatabaseFull();
-      BackupService.scheduleAutomatedBackups(24); // Schedule daily backups
+      BackupService.scheduleAutomatedBackups(24);
     } catch (err) {
       logger.error('Error executing database startup tasks:', err);
     }
@@ -146,7 +191,7 @@ app.use('/api/v1/docs', docsRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 
-// Legacy route aliases for backward compatibility
+// Legacy route aliases
 app.use('/api/bookings', bookingRoutes);
 
 // Vite Middleware for Frontend Serving
@@ -168,10 +213,16 @@ async function startServer() {
 
     // SPA fallback
     app.use((req, res, next) => {
-      if (req.method === 'GET' && !req.path.startsWith('/api/')) {
-        res.sendFile(path.join(distPath, 'index.html'), (err) => {
-          if (err) next(err);
-        });
+      if (
+        req.method === 'GET' &&
+        !req.path.startsWith('/api/')
+      ) {
+        res.sendFile(
+          path.join(distPath, 'index.html'),
+          (err) => {
+            if (err) next(err);
+          }
+        );
       } else {
         next();
       }
