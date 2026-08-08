@@ -152,17 +152,29 @@ app.use('/api/bookings', bookingRoutes);
 // Vite Middleware for Frontend Serving
 async function startServer() {
   validateEnv();
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
+
+    // Serve frontend static files
     app.use(express.static(distPath));
-  app.get('/{*splat}', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+
+    // SPA fallback
+    app.use((req, res, next) => {
+      if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+        res.sendFile(path.join(distPath, 'index.html'), (err) => {
+          if (err) next(err);
+        });
+      } else {
+        next();
+      }
     });
   }
 
@@ -171,7 +183,9 @@ async function startServer() {
   app.use(errorHandler);
 
   app.listen(PORT, '0.0.0.0', () => {
-    logger.info(`🚀 CookMantra Node.js + Express Backend active on http://0.0.0.0:${PORT}`);
+    logger.info(
+      `🚀 CookMantra Node.js + Express Backend active on http://0.0.0.0:${PORT}`
+    );
   });
 }
 
