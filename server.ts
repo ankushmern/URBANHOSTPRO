@@ -73,8 +73,10 @@ const defaultDevOrigins = [
   'http://127.0.0.1:5173',
   'http://127.0.0.1:3000',
 ];
+
 const productionOrigins = [
   'https://urbanhostpro.vercel.app',
+  'https://urbanhostpro.onrender.com',
 ];
 app.use(
   cors({

@@ -247,7 +247,7 @@ export const razorpayWebhook = async (req: Request, res: Response): Promise<void
             await payment.save({ session });
 
             if (payment.bookingId) {
-              await Booking.updateOne({ bookingId: payment.bookingId, isDeleted: false }, { status: 'Confirmed' }, { session });
+              await Booking.updateOne({ bookingId: payment.bookingId, isDeleted: false }, { status: 'Confirmed' }, { session: session || undefined });
             }
           }
         });
@@ -457,7 +457,7 @@ export const issueRefund = async (req: AuthenticatedRequest, res: Response): Pro
       await payment.save({ session });
 
       if (payment.bookingId) {
-        await Booking.updateOne({ bookingId: payment.bookingId, isDeleted: false }, { status: 'Cancelled' }, { session });
+        await Booking.updateOne({ bookingId: payment.bookingId, isDeleted: false }, { status: 'Cancelled' },{ session: session || undefined });
       }
 
       return { payment, refundId };
