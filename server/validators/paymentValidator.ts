@@ -10,10 +10,13 @@ export const createRazorpayOrderSchema = z.object({
 
 export const verifyPaymentSchema = z.object({
   body: z.object({
-    razorpay_order_id: z.string().min(1, 'Order ID is required'),
-    razorpay_payment_id: z.string().min(1, 'Payment ID is required'),
-    razorpay_signature: z.string().optional().default(''),
+    orderId: z.string().min(1, 'Order ID is required'),
+    paymentId: z.string().min(1, 'Payment ID is required'),
+    razorpaySignature: z.string().optional().default(''),
     bookingId: z.string().min(1, 'Booking ID is required'),
+    method: z.string().optional().default('razorpay'),
+    utrNumber: z.string().optional().default(''),
+    status: z.string().optional().default('Success'),
   }),
 });
 

@@ -123,15 +123,19 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
  */
 export const verifyPayment = async (req: Request, res: Response): Promise<void> => {
   try {
-    const {
-      orderId,
-      paymentId,
-      razorpaySignature,
-      bookingId,
-      method = 'razorpay',
-      utrNumber = '',
-      status = 'Success',
-    } = req.body;
+const {
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature,
+  bookingId,
+  method = 'razorpay',
+  utrNumber = '',
+  status = 'Success',
+} = req.body;
+
+const orderId = razorpay_order_id;
+const paymentId = razorpay_payment_id;
+const razorpaySignature = razorpay_signature;
 
     if (!orderId || !paymentId) {
       res.status(400).json({ success: false, message: 'orderId and paymentId are required for verification.' });
