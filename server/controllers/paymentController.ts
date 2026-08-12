@@ -118,7 +118,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
 /**
  * @desc    Verify Razorpay Payment Signature & Confirm Booking
- * @route   POST /api/v1/payments/verify
+ @route POST /api/v1/payments/verify
  * @access  Public / Private
  */
 export const verifyPayment = async (req: Request, res: Response): Promise<void> => {

@@ -42,7 +42,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const OWNER_UPI_ID = 'aankushrajput672@okhdfcbank';
   const [copiedUpi, setCopiedUpi] = useState(false);
 
-  // Load Razorpay Checkout Script dynamically
   useEffect(() => {
     if (!window.Razorpay) {
       const script = document.createElement('script');
@@ -56,9 +55,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const itemTitle = bookingDetails?.itemTitle || 'Gourmet Culinary Chef Service';
   const basePrice = bookingDetails?.amount || '₹2,499';
-  
   const numericPrice = parseInt(basePrice.replace(/[^0-9]/g, '')) || 2499;
-  const gstAmount = Math.round((numericPrice * 0.18) * 100) / 100; // 18% GST for official invoice
+  const gstAmount = Math.round((numericPrice * 0.18) * 100) / 100;
   const totalAmount = Math.round(numericPrice + gstAmount);
 
   const copyToClipboard = () => {
@@ -74,13 +72,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     setErrorMessage('');
   };
 
-  // Launch Razorpay Standard Checkout Popup
   const launchRazorpayCheckout = async () => {
     setIsProcessing(true);
     setErrorMessage('');
 
     try {
-      // Step 1: Call Backend create-order
       const orderRes = await fetch('/api/v1/payments/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -102,7 +98,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
       const { orderId, paymentId: initPaymentId, keyId, invoiceNumber } = orderData;
 
-      // Handle Razorpay Checkout JS Popup if loaded
       if (window.Razorpay) {
         const options = {
           key: keyId || 'rzp_test_cookmantra2026',
@@ -113,7 +108,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           image: '/logo.png',
           order_id: orderId,
           handler: async function (response: any) {
-            // Step 2: Verify Payment on Backend
             await handleVerifyBackendPayment({
               orderId,
               paymentId: response.razorpay_payment_id || initPaymentId,
@@ -148,7 +142,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         });
         rzp.open();
       } else {
-        // Fallback simulated payment verification if script blocked
         await handleVerifyBackendPayment({
           orderId,
           paymentId: initPaymentId,
@@ -223,8 +216,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         setErrorMessage('Please check the box confirming you transferred via UPI App.');
         return;
       }
-      if (!utrNumber || utrNumber.trim().length < 4) {
-        setErrorMessage('Please enter valid 12-Digit UPI UTR ID.');
+
+      if (!/^\d{12}$/.test(utrNumber.trim())) {
+        setErrorMessage('Please enter a valid 12-digit UPI UTR ID.');
         return;
       }
     }
@@ -238,6 +232,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     await handleVerifyBackendPayment({
       orderId: generatedOrderId,
       paymentId: generatedPaymentId,
+      razorpay_order_id: generatedOrderId,
+      razorpay_payment_id: generatedPaymentId,
       bookingId: bookingDetails?.bookingId,
       method: paymentMode === 'cod' ? 'CASH_ON_ARRIVAL' : 'DIRECT_UPI',
       utrNumber: paymentMode === 'cod' ? 'CASH_ON_DELIVERY' : utrNumber.trim(),
@@ -247,6 +243,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   return (
     <>
+      {/* Main Modal */}
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-2.5 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
         <div className="bg-white dark:bg-[#18181b] rounded-2xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] sm:max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-zinc-800 shadow-2xl relative my-auto">
           {/* Header */}
@@ -516,7 +513,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   </div>
                 )}
 
-                {/* Pay Button */}
                 <button
                   type="submit"
                   className="w-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-gray-950 py-3.5 rounded-2xl font-black text-sm shadow-xl hover:shadow-2xl transition cursor-pointer flex items-center justify-center gap-2.5 active:scale-98"
@@ -536,7 +532,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
       </div>
 
-      {/* Tax Invoice Modal */}
+      {/* Invoice Modal */}
       <InvoiceModal
         isOpen={invoiceModalOpen}
         onClose={() => setInvoiceModalOpen(false)}
